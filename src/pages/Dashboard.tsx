@@ -54,9 +54,31 @@ const Dashboard = () => {
         .single();
 
       if (error) throw error;
+
+      // Generate RSA keys if they don't exist
+      if (data && !data.public_key_pem && user) {
+        const { generateRSAKeyPair } = await import("@/lib/encryption");
+        const { publicKey, privateKey } = await generateRSAKeyPair();
+        
+        // Store private key in localStorage (client-side only)
+        localStorage.setItem(`rsa_private_key_${user.id}`, privateKey);
+        
+        // Update profile with public key
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ public_key_pem: publicKey })
+          .eq("id", data.id);
+        
+        if (updateError) throw updateError;
+        
+        data.public_key_pem = publicKey;
+        toast.success("Security keys generated successfully");
+      }
+
       setProfile(data);
     } catch (error: any) {
       console.error("Error loading profile:", error);
+      toast.error("Error loading profile");
     } finally {
       setLoading(false);
     }

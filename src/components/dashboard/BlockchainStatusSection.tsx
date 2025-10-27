@@ -12,6 +12,26 @@ const BlockchainStatusSection = () => {
 
   useEffect(() => {
     loadBlockchain();
+    
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('blockchain-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'blockchain'
+        },
+        () => {
+          loadBlockchain();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadBlockchain = async () => {

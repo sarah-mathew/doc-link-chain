@@ -55,13 +55,15 @@ const Dashboard = () => {
 
       if (error) throw error;
 
+      // Store user ID for key retrieval (always, not just when generating keys)
+      if (user) {
+        localStorage.setItem('userId', user.id);
+      }
+
       // Generate RSA keys if they don't exist
       if (data && !data.public_key_pem && user) {
         const { generateRSAKeyPair } = await import("@/lib/encryption");
         const { publicKey, privateKey } = await generateRSAKeyPair();
-        
-        // Store user ID for key retrieval
-        localStorage.setItem('userId', user.id);
         
         // Store private key in localStorage (client-side only)
         localStorage.setItem(`rsa_private_key_${user.id}`, privateKey);

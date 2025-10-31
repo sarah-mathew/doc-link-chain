@@ -27,19 +27,34 @@ export async function generateRSAKeyPair(): Promise<{ publicKey: string; private
   };
 }
 
+// Derive shared secret from key strings (demo-only simplification)
+function deriveSharedSecret(key: string): string {
+  // Strip demo prefixes so both "PUBLIC_x" and "PRIVATE_x" map to the same base secret
+  return key.replace(/^PUBLIC_|^PRIVATE_/, '');
+}
+
 // Encrypt AES key with RSA public key (simplified)
 export function encryptKeyWithRSA(aesKey: string, publicKey: string): string {
   // In production, use crypto.subtle.encrypt() with RSA-OAEP
-  // For demo, we'll use AES encryption with the public key as password
-  return CryptoJS.AES.encrypt(aesKey, publicKey).toString();
+  const shared = deriveSharedSecret(publicKey);
+  return CryptoJS.AES.encrypt(aesKey, shared).toString();
 }
 
 // Decrypt AES key with RSA private key (simplified)
 export function decryptKeyWithRSA(encryptedKey: string, privateKey: string): string {
   // In production, use crypto.subtle.decrypt() with RSA-OAEP
-  // For demo, we'll use AES decryption with the private key as password
-  const bytes = CryptoJS.AES.decrypt(encryptedKey, privateKey);
-  return bytes.toString(CryptoJS.enc.Utf8);
+  // Try multiple compatible passwords for backward compatibility
+  const candidates = [
+    deriveSharedSecret(privateKey),
+    privateKey,
+    privateKey.replace(/^PRIVATE_/, 'PUBLIC_'),
+  ];
+  for (const pass of candidates) {
+    const bytes = CryptoJS.AES.decrypt(encryptedKey, pass);
+    const plain = bytes.toString(CryptoJS.enc.Utf8);
+    if (plain) return plain;
+  }
+  return '';
 }
 
 // Hash file content

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Share2, Download, Eye } from "lucide-react";
+import { FileText, Share2, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ShareRecordDialog from "./ShareRecordDialog";
+import ViewRecordDialog from "./ViewRecordDialog";
 
 interface RecordsListSectionProps {
   profileId: string;
@@ -15,6 +16,7 @@ const RecordsListSection = ({ profileId }: RecordsListSectionProps) => {
   const [loading, setLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
 
   useEffect(() => {
     if (profileId) {
@@ -47,6 +49,11 @@ const RecordsListSection = ({ profileId }: RecordsListSectionProps) => {
   const handleShare = (record: any) => {
     setSelectedRecord(record);
     setShareDialogOpen(true);
+  };
+
+  const handleView = (record: any) => {
+    setSelectedRecord(record);
+    setViewDialogOpen(true);
   };
 
   if (loading) {
@@ -103,6 +110,14 @@ const RecordsListSection = ({ profileId }: RecordsListSectionProps) => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleView(record)}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      View
+                    </Button>
                     {record.owner_id === profileId && (
                       <Button
                         variant="outline"
@@ -126,6 +141,13 @@ const RecordsListSection = ({ profileId }: RecordsListSectionProps) => {
         open={shareDialogOpen}
         onOpenChange={setShareDialogOpen}
         onSuccess={loadRecords}
+      />
+      
+      <ViewRecordDialog
+        record={selectedRecord}
+        profileId={profileId}
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
       />
     </>
   );

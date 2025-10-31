@@ -60,6 +60,9 @@ const Dashboard = () => {
         const { generateRSAKeyPair } = await import("@/lib/encryption");
         const { publicKey, privateKey } = await generateRSAKeyPair();
         
+        // Store user ID for key retrieval
+        localStorage.setItem('userId', user.id);
+        
         // Store private key in localStorage (client-side only)
         localStorage.setItem(`rsa_private_key_${user.id}`, privateKey);
         

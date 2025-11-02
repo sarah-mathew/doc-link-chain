@@ -18,13 +18,39 @@ const BlockchainStatusSection = () => {
       .channel('blockchain-changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'blockchain'
-        },
-        () => {
-          loadBlockchain();
+        { event: 'INSERT', schema: 'public', table: 'blockchain' },
+        (payload: any) => {
+          setBlocks((prev) => {
+            const exists = prev.some((b) => b.id === payload.new.id);
+            const next = exists ? prev : [...prev, payload.new];
+            const ordered = [...next].sort((a, b) => a.block_index - b.block_index);
+            setIsValid(validateChain(ordered));
+            return ordered;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'blockchain' },
+        (payload: any) => {
+          setBlocks((prev) => {
+            const next = prev.map((b) => (b.id === payload.new.id ? payload.new : b));
+            const ordered = [...next].sort((a, b) => a.block_index - b.block_index);
+            setIsValid(validateChain(ordered));
+            return ordered;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'blockchain' },
+        (payload: any) => {
+          setBlocks((prev) => {
+            const next = prev.filter((b) => b.id !== payload.old.id);
+            const ordered = [...next].sort((a, b) => a.block_index - b.block_index);
+            setIsValid(validateChain(ordered));
+            return ordered;
+          });
         }
       )
       .subscribe();

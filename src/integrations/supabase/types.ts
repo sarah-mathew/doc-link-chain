@@ -125,6 +125,7 @@ export type Database = {
           face_encoding_data: string | null
           full_name: string
           id: string
+          private_key_pem: string | null
           public_key_pem: string | null
           specialization: string | null
           updated_at: string | null
@@ -135,6 +136,7 @@ export type Database = {
           face_encoding_data?: string | null
           full_name: string
           id?: string
+          private_key_pem?: string | null
           public_key_pem?: string | null
           specialization?: string | null
           updated_at?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           face_encoding_data?: string | null
           full_name?: string
           id?: string
+          private_key_pem?: string | null
           public_key_pem?: string | null
           specialization?: string | null
           updated_at?: string | null

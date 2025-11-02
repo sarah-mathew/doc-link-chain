@@ -14,12 +14,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ViewRecordDialogProps {
   record: any;
-  profileId: string;
+  profile: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const ViewRecordDialog = ({ record, profileId, open, onOpenChange }: ViewRecordDialogProps) => {
+const ViewRecordDialog = ({ record, profile, open, onOpenChange }: ViewRecordDialogProps) => {
+  const profileId = profile?.id;
   const [decryptedContent, setDecryptedContent] = useState<string | null>(null);
   const [decrypting, setDecrypting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +47,7 @@ const ViewRecordDialog = ({ record, profileId, open, onOpenChange }: ViewRecordD
         aesKey = record.encrypted_aes_key;
       } else {
         // Receiver needs to decrypt the AES key with their private key
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-          throw new Error("User ID not found");
-        }
-        
-        const privateKey = localStorage.getItem(`rsa_private_key_${userId}`);
+        const privateKey = profile?.private_key_pem;
         if (!privateKey) {
           throw new Error("Private key not found. Please sign out and sign in again to generate keys.");
         }

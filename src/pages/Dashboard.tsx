@@ -65,18 +65,19 @@ const Dashboard = () => {
         const { generateRSAKeyPair } = await import("@/lib/encryption");
         const { publicKey, privateKey } = await generateRSAKeyPair();
         
-        // Store private key in localStorage (client-side only)
-        localStorage.setItem(`rsa_private_key_${user.id}`, privateKey);
-        
-        // Update profile with public key
+        // Update profile with both public and private keys
         const { error: updateError } = await supabase
           .from("profiles")
-          .update({ public_key_pem: publicKey })
+          .update({ 
+            public_key_pem: publicKey,
+            private_key_pem: privateKey
+          })
           .eq("id", data.id);
         
         if (updateError) throw updateError;
         
         data.public_key_pem = publicKey;
+        data.private_key_pem = privateKey;
         toast.success("Security keys generated successfully");
       }
 
@@ -160,7 +161,7 @@ const Dashboard = () => {
         </div>
 
         <div className="mt-6">
-          <RecordsListSection profileId={profile?.id} />
+          <RecordsListSection profile={profile} />
         </div>
       </main>
     </div>

@@ -8,10 +8,11 @@ import ShareRecordDialog from "./ShareRecordDialog";
 import ViewRecordDialog from "./ViewRecordDialog";
 
 interface RecordsListSectionProps {
-  profileId: string;
+  profile: any;
 }
 
-const RecordsListSection = ({ profileId }: RecordsListSectionProps) => {
+const RecordsListSection = ({ profile }: RecordsListSectionProps) => {
+  const profileId = profile?.id;
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
@@ -145,7 +146,7 @@ const RecordsListSection = ({ profileId }: RecordsListSectionProps) => {
       
       <ViewRecordDialog
         record={selectedRecord}
-        profileId={profileId}
+        profile={profile}
         open={viewDialogOpen}
         onOpenChange={setViewDialogOpen}
       />

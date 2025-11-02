@@ -11,9 +11,10 @@ import { Blockchain, BlockData } from "@/lib/blockchain";
 
 interface UploadRecordSectionProps {
   profileId: string;
+  onUploadComplete?: () => void;
 }
 
-const UploadRecordSection = ({ profileId }: UploadRecordSectionProps) => {
+const UploadRecordSection = ({ profileId, onUploadComplete }: UploadRecordSectionProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -124,6 +125,9 @@ const UploadRecordSection = ({ profileId }: UploadRecordSectionProps) => {
       // Reset file input
       const fileInput = document.getElementById("file-upload") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
+      
+      // Trigger callback to refresh parent components
+      onUploadComplete?.();
       
     } catch (error: any) {
       console.error("Upload error:", error);

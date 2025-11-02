@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     // Set up auth state listener
@@ -90,6 +91,11 @@ const Dashboard = () => {
     }
   };
 
+  const handleUploadComplete = () => {
+    // Trigger refresh of all components by updating key
+    setRefreshKey(prev => prev + 1);
+  };
+
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -156,12 +162,18 @@ const Dashboard = () => {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <UploadRecordSection profileId={profile?.id} />
-          <BlockchainStatusSection />
+          <UploadRecordSection 
+            profileId={profile?.id} 
+            onUploadComplete={handleUploadComplete}
+          />
+          <BlockchainStatusSection key={`blockchain-${refreshKey}`} />
         </div>
 
         <div className="mt-6">
-          <RecordsListSection profile={profile} />
+          <RecordsListSection 
+            profile={profile} 
+            key={`records-${refreshKey}`}
+          />
         </div>
       </main>
     </div>

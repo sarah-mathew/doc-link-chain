@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Shield, LogOut, User } from "lucide-react";
+import ContactAdminDialog from "@/components/ContactAdminDialog";
 
 interface DashboardHeaderProps {
   profile: any;
@@ -28,6 +29,7 @@ const DashboardHeader = ({ profile, onSignOut }: DashboardHeaderProps) => {
               <p className="font-semibold">{profile?.full_name || "Doctor"}</p>
               <p className="text-sm text-muted-foreground">{profile?.specialization || "Medical Professional"}</p>
             </div>
+            <ContactAdminDialog />
             <Button variant="outline" size="icon" onClick={onSignOut}>
               <LogOut className="w-4 h-4" />
             </Button>

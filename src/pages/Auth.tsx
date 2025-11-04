@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Shield, Lock } from "lucide-react";
+import { Shield, Lock, MessageSquare } from "lucide-react";
+import ContactAdminDialog from "@/components/ContactAdminDialog";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -16,12 +17,35 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const [registrationNumber, setRegistrationNumber] = useState("");
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Verify doctor is in verified_doctors database
+      const { data: verifiedDoctor, error: verificationError } = await supabase
+        .from("verified_doctors")
+        .select("*")
+        .eq("registration_number", registrationNumber)
+        .maybeSingle();
+
+      if (verificationError) throw verificationError;
+
+      if (!verifiedDoctor) {
+        toast.error("You are not a verified doctor. Please contact admin for verification.");
+        setLoading(false);
+        return;
+      }
+
+      // Check if full name matches (case-insensitive)
+      if (verifiedDoctor.full_name.toLowerCase() !== fullName.toLowerCase()) {
+        toast.error("Full name does not match our records. Please verify your details.");
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -48,12 +72,36 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      // Verify the signed-in user's profile exists and has matching registration
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", data.user.id)
+          .single();
+
+        if (profile) {
+          const { data: verifiedDoctor } = await supabase
+            .from("verified_doctors")
+            .select("*")
+            .eq("full_name", profile.full_name)
+            .maybeSingle();
+
+          if (!verifiedDoctor) {
+            await supabase.auth.signOut();
+            toast.error("Your account is not verified. Please contact admin.");
+            setLoading(false);
+            return;
+          }
+        }
+      }
 
       toast.success("Signed in successfully!");
       navigate("/dashboard");
@@ -133,6 +181,17 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="signup-registration">Registration Number</Label>
+                    <Input
+                      id="signup-registration"
+                      type="text"
+                      placeholder="MED12345"
+                      value={registrationNumber}
+                      onChange={(e) => setRegistrationNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="signup-specialization">Specialization</Label>
                     <Input
                       id="signup-specialization"
@@ -173,6 +232,20 @@ const Auth = () => {
             </Tabs>
           </CardContent>
         </Card>
+
+        <div className="mt-4 text-center">
+          <ContactAdminDialog
+            trigger={
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Not verified? Contact Admin
+              </Button>
+            }
+            defaultName={fullName}
+            defaultEmail={email}
+            defaultRegistration={registrationNumber}
+          />
+        </div>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
           Protected by blockchain encryption and Face ID

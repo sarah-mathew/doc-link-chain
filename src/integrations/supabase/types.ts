@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          registration_number: string | null
+          status: Database["public"]["Enums"]["message_status"]
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          registration_number?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          registration_number?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       blockchain: {
         Row: {
           block_index: number
@@ -155,6 +188,36 @@ export type Database = {
         }
         Relationships: []
       }
+      verified_doctors: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          registration_number: string
+          specialization: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          registration_number: string
+          specialization?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          registration_number?: string
+          specialization?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -163,7 +226,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      message_status: "pending" | "resolved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -290,6 +353,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      message_status: ["pending", "resolved"],
+    },
   },
 } as const

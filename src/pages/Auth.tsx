@@ -24,23 +24,23 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Verify doctor is in verified_doctors database
-      const { data: verifiedDoctor, error: verificationError } = await supabase
-        .from("verified_doctors")
+      // Verify doctor is in registered_doctors database
+      const { data: registeredDoctor, error: verificationError } = await supabase
+        .from("registered_doctors")
         .select("*")
         .eq("registration_number", registrationNumber)
         .maybeSingle();
 
       if (verificationError) throw verificationError;
 
-      if (!verifiedDoctor) {
-        toast.error("You are not a verified doctor. Please contact admin for verification.");
+      if (!registeredDoctor) {
+        toast.error("You are not a registered doctor. Please contact admin for verification.");
         setLoading(false);
         return;
       }
 
       // Check if full name matches (case-insensitive)
-      if (verifiedDoctor.full_name.toLowerCase() !== fullName.toLowerCase()) {
+      if (registeredDoctor.full_name.toLowerCase() !== fullName.toLowerCase()) {
         toast.error("Full name does not match our records. Please verify your details.");
         setLoading(false);
         return;
@@ -88,15 +88,15 @@ const Auth = () => {
           .single();
 
         if (profile) {
-          const { data: verifiedDoctor } = await supabase
-            .from("verified_doctors")
+          const { data: registeredDoctor } = await supabase
+            .from("registered_doctors")
             .select("*")
             .eq("full_name", profile.full_name)
             .maybeSingle();
 
-          if (!verifiedDoctor) {
+          if (!registeredDoctor) {
             await supabase.auth.signOut();
-            toast.error("Your account is not verified. Please contact admin.");
+            toast.error("Your account is not registered. Please contact admin.");
             setLoading(false);
             return;
           }

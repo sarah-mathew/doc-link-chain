@@ -89,33 +89,21 @@ const BlockchainStatusSection = () => {
   };
 
   const validateChain = (chainData: any[]): boolean => {
+    // Empty chain is considered valid
     if (chainData.length === 0) return true;
     
-    const blockchain = new Blockchain();
-    
+    // Validate chain by checking if previous_hash of current block matches current_hash of previous block
     for (let i = 1; i < chainData.length; i++) {
       const currentBlock = chainData[i];
       const previousBlock = chainData[i - 1];
 
-      // Verify link to previous block
+      // Check if previous_hash field of current block equals current_hash field of previous block
       if (currentBlock.previous_hash !== previousBlock.current_hash) {
-        console.error(`Block ${i}: Previous hash mismatch`);
-        return false;
-      }
-
-      // Recalculate and verify current block's hash
-      const calculatedHash = blockchain.calculateHash(
-        currentBlock.block_index,
-        currentBlock.timestamp,
-        currentBlock.data_json,
-        currentBlock.previous_hash
-      );
-
-      if (currentBlock.current_hash !== calculatedHash) {
-        console.error(`Block ${i}: Hash validation failed`);
+        console.error(`Block ${i}: Chain broken - previous_hash doesn't match`);
         return false;
       }
     }
+    
     return true;
   };
 

@@ -98,6 +98,42 @@ export type Database = {
           },
         ]
       }
+      blockchain_renewed: {
+        Row: {
+          block_index: number
+          created_at: string
+          current_hash: string
+          data_json: Json
+          id: string
+          previous_hash: string
+          receiver_id: string | null
+          sender_id: string
+          timestamp: string
+        }
+        Insert: {
+          block_index: number
+          created_at?: string
+          current_hash: string
+          data_json: Json
+          id?: string
+          previous_hash: string
+          receiver_id?: string | null
+          sender_id: string
+          timestamp?: string
+        }
+        Update: {
+          block_index?: number
+          created_at?: string
+          current_hash?: string
+          data_json?: Json
+          id?: string
+          previous_hash?: string
+          receiver_id?: string | null
+          sender_id?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
       medical_records: {
         Row: {
           created_at: string | null

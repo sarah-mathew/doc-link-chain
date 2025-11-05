@@ -15,10 +15,10 @@ const BlockchainStatusSection = () => {
     
     // Set up realtime subscription
     const channel = supabase
-      .channel('blockchain-changes')
+      .channel('blockchain-renewed-changes')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'blockchain' },
+        { event: 'INSERT', schema: 'public', table: 'blockchain_renewed' },
         (payload: any) => {
           setBlocks((prev) => {
             const exists = prev.some((b) => b.id === payload.new.id);
@@ -31,7 +31,7 @@ const BlockchainStatusSection = () => {
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'blockchain' },
+        { event: 'UPDATE', schema: 'public', table: 'blockchain_renewed' },
         (payload: any) => {
           setBlocks((prev) => {
             const next = prev.map((b) => (b.id === payload.new.id ? payload.new : b));
@@ -43,7 +43,7 @@ const BlockchainStatusSection = () => {
       )
       .on(
         'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'blockchain' },
+        { event: 'DELETE', schema: 'public', table: 'blockchain_renewed' },
         (payload: any) => {
           setBlocks((prev) => {
             const next = prev.filter((b) => b.id !== payload.old.id);
@@ -63,7 +63,7 @@ const BlockchainStatusSection = () => {
   const loadBlockchain = async () => {
     try {
       const { data, error } = await supabase
-        .from("blockchain")
+        .from("blockchain_renewed")
         .select(`
           *,
           sender:profiles!sender_id(full_name),

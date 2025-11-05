@@ -84,7 +84,7 @@ const UploadRecordSection = ({ profileId, onUploadComplete }: UploadRecordSectio
 
       // Get the latest block index
       const { data: latestBlock } = await supabase
-        .from("blockchain")
+        .from("blockchain_renewed")
         .select("block_index")
         .order("block_index", { ascending: false })
         .limit(1)
@@ -94,29 +94,32 @@ const UploadRecordSection = ({ profileId, onUploadComplete }: UploadRecordSectio
 
       // Get previous hash
       const { data: previousBlock } = await supabase
-        .from("blockchain")
+        .from("blockchain_renewed")
         .select("current_hash")
         .eq("block_index", newBlockIndex - 1)
         .single();
 
       const previousHash = previousBlock?.current_hash || "0";
 
-      // Calculate new hash
+      // Calculate new hash using blockchain.ts
       const blockchain = new Blockchain();
+      const timestamp = new Date().toISOString();
       const calculatedHash = blockchain.calculateHash(
         newBlockIndex,
-        new Date().toISOString(),
+        timestamp,
         blockData,
         previousHash
       );
 
-      // Insert blockchain record
-      await supabase.from("blockchain").insert([{
+      // Insert blockchain record with all calculated values
+      await supabase.from("blockchain_renewed").insert([{
         block_index: newBlockIndex,
+        timestamp: timestamp,
         previous_hash: previousHash,
         current_hash: calculatedHash,
         data_json: blockData as any,
         sender_id: profileId,
+        receiver_id: null,
       }]);
 
       toast.success("Medical record uploaded and added to blockchain!");

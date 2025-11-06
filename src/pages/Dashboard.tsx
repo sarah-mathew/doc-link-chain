@@ -8,7 +8,7 @@ import { Shield, LogOut, Upload, Share2, FileText, CheckCircle } from "lucide-re
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import UploadRecordSection from "@/components/dashboard/UploadRecordSection";
 import RecordsListSection from "@/components/dashboard/RecordsListSection";
-import BlockchainStatusSection from "@/components/dashboard/BlockchainStatusSection";
+import BlockchainValidation from "@/components/dashboard/BlockchainValidation";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -166,7 +166,7 @@ const Dashboard = () => {
             profileId={profile?.id} 
             onUploadComplete={handleUploadComplete}
           />
-          <BlockchainStatusSection key={`blockchain-${refreshKey}`} />
+          <BlockchainValidation key={`blockchain-${refreshKey}`} />
         </div>
 
         <div className="mt-6">

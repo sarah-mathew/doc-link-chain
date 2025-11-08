@@ -134,6 +134,81 @@ export type Database = {
         }
         Relationships: []
       }
+      encrypted_files: {
+        Row: {
+          created_at: string
+          encrypted_aes_key: string
+          encrypted_path: string
+          file_hash: string
+          file_name: string
+          folder_id: string
+          id: string
+          metadata: Json | null
+          owner_id: string
+          receiver_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          encrypted_aes_key: string
+          encrypted_path: string
+          file_hash: string
+          file_name: string
+          folder_id: string
+          id?: string
+          metadata?: Json | null
+          owner_id: string
+          receiver_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          encrypted_aes_key?: string
+          encrypted_path?: string
+          file_hash?: string
+          file_name?: string
+          folder_id?: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string
+          receiver_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      encrypted_folders: {
+        Row: {
+          created_at: string
+          file_count: number
+          folder_hash: string
+          folder_name: string
+          id: string
+          metadata: Json | null
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          file_count?: number
+          folder_hash: string
+          folder_name: string
+          id?: string
+          metadata?: Json | null
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          file_count?: number
+          folder_hash?: string
+          folder_name?: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       encrypted_images: {
         Row: {
           created_at: string

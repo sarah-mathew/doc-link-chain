@@ -11,6 +11,8 @@ import RecordsListSection from "@/components/dashboard/RecordsListSection";
 import BlockchainValidation from "@/components/dashboard/BlockchainValidation";
 import MultiImageUpload from "@/components/dashboard/MultiImageUpload";
 import EncryptedImagesGallery from "@/components/dashboard/EncryptedImagesGallery";
+import FolderUpload from "@/components/dashboard/FolderUpload";
+import EncryptedFoldersGallery from "@/components/dashboard/EncryptedFoldersGallery";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -185,6 +187,16 @@ const Dashboard = () => {
           <EncryptedImagesGallery 
             profile={profile}
             key={`gallery-${refreshKey}`}
+          />
+          
+          <FolderUpload 
+            profileId={profile?.id}
+            onUploadComplete={handleUploadComplete}
+          />
+          
+          <EncryptedFoldersGallery 
+            profileId={profile?.id}
+            key={`folders-${refreshKey}`}
           />
         </div>
       </main>

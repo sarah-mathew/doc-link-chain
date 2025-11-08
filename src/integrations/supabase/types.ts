@@ -134,6 +134,45 @@ export type Database = {
         }
         Relationships: []
       }
+      encrypted_images: {
+        Row: {
+          created_at: string
+          encrypted_aes_key: string
+          encrypted_path: string
+          file_hash: string
+          file_name: string
+          id: string
+          metadata: Json | null
+          owner_id: string
+          receiver_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          encrypted_aes_key: string
+          encrypted_path: string
+          file_hash: string
+          file_name: string
+          id?: string
+          metadata?: Json | null
+          owner_id: string
+          receiver_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          encrypted_aes_key?: string
+          encrypted_path?: string
+          file_hash?: string
+          file_name?: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string
+          receiver_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       medical_records: {
         Row: {
           created_at: string | null

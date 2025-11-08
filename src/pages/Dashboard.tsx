@@ -9,6 +9,8 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import UploadRecordSection from "@/components/dashboard/UploadRecordSection";
 import RecordsListSection from "@/components/dashboard/RecordsListSection";
 import BlockchainValidation from "@/components/dashboard/BlockchainValidation";
+import MultiImageUpload from "@/components/dashboard/MultiImageUpload";
+import EncryptedImagesGallery from "@/components/dashboard/EncryptedImagesGallery";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -169,10 +171,20 @@ const Dashboard = () => {
           <BlockchainValidation key={`blockchain-${refreshKey}`} />
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 space-y-6">
           <RecordsListSection 
             profile={profile} 
             key={`records-${refreshKey}`}
+          />
+          
+          <MultiImageUpload 
+            profileId={profile?.id}
+            onUploadComplete={handleUploadComplete}
+          />
+          
+          <EncryptedImagesGallery 
+            profile={profile}
+            key={`gallery-${refreshKey}`}
           />
         </div>
       </main>

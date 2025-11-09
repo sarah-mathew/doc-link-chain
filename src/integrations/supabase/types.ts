@@ -185,6 +185,7 @@ export type Database = {
           id: string
           metadata: Json | null
           owner_id: string
+          receiver_id: string | null
           updated_at: string
         }
         Insert: {
@@ -195,6 +196,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           owner_id: string
+          receiver_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -205,9 +207,18 @@ export type Database = {
           id?: string
           metadata?: Json | null
           owner_id?: string
+          receiver_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "encrypted_folders_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       encrypted_images: {
         Row: {

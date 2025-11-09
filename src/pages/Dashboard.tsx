@@ -13,6 +13,7 @@ import MultiImageUpload from "@/components/dashboard/MultiImageUpload";
 import EncryptedImagesGallery from "@/components/dashboard/EncryptedImagesGallery";
 import FolderUpload from "@/components/dashboard/FolderUpload";
 import EncryptedFoldersGallery from "@/components/dashboard/EncryptedFoldersGallery";
+import SharedFoldersGallery from "@/components/dashboard/SharedFoldersGallery";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -197,6 +198,11 @@ const Dashboard = () => {
           <EncryptedFoldersGallery 
             profileId={profile?.id}
             key={`folders-${refreshKey}`}
+          />
+          
+          <SharedFoldersGallery 
+            profileId={profile?.id}
+            key={`shared-folders-${refreshKey}`}
           />
         </div>
       </main>

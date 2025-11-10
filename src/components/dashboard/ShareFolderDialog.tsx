@@ -17,7 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Shield } from "lucide-react";
-import { encryptKeyWithRSA } from "@/lib/encryption";
+import { encryptKeyWithRSA, decryptKeyWithRSA } from "@/lib/encryption";
 import { Blockchain, BlockData } from "@/lib/blockchain";
 
 interface ShareFolderDialogProps {
@@ -74,8 +74,8 @@ const ShareFolderDialog = ({
 
     setSharing(true);
     try {
-      // Get receiver's public key and sender's name
-      const [receiverResult, senderResult] = await Promise.all([
+      // Get receiver's public key, sender's name, and owner's private key
+      const [receiverResult, senderResult, ownerResult] = await Promise.all([
         supabase
           .from("profiles")
           .select("public_key_pem, full_name")
@@ -86,17 +86,29 @@ const ShareFolderDialog = ({
           .select("full_name")
           .eq("id", folder.owner_id)
           .single(),
+        supabase
+          .from("profiles")
+          .select("private_key_pem")
+          .eq("id", folder.owner_id)
+          .single(),
       ]);
 
       if (receiverResult.error) throw receiverResult.error;
       if (senderResult.error) throw senderResult.error;
+      if (ownerResult.error) throw ownerResult.error;
 
       const receiverPublicKey = receiverResult.data.public_key_pem;
       const receiverName = receiverResult.data.full_name;
       const senderName = senderResult.data.full_name;
+      const ownerPrivateKey = ownerResult.data.private_key_pem;
 
       if (!receiverPublicKey) {
         toast.error("Receiver's public key not found");
+        return;
+      }
+
+      if (!ownerPrivateKey) {
+        toast.error("Owner's private key not found");
         return;
       }
 
@@ -114,32 +126,31 @@ const ShareFolderDialog = ({
       }
 
       // Re-encrypt each file's AES key with receiver's public key
-      const fileUpdates = files.map((file) => {
-        // Decrypt with sender's key would happen on backend in production
-        // For this demo, we'll re-encrypt the existing key
-        const reencryptedKey = encryptKeyWithRSA(
-          file.encrypted_aes_key,
-          receiverPublicKey
-        );
+      for (const file of files) {
+        // Decrypt the AES key with owner's private key
+        const aesKey = decryptKeyWithRSA(file.encrypted_aes_key, ownerPrivateKey);
+        
+        if (!aesKey) {
+          console.error(`Failed to decrypt AES key for file ${file.id}`);
+          continue;
+        }
 
-        return {
-          id: file.id,
-          receiver_id: selectedDoctor,
-          encrypted_aes_key: reencryptedKey,
-        };
-      });
+        // Re-encrypt with receiver's public key
+        const receiverEncryptedKey = encryptKeyWithRSA(aesKey, receiverPublicKey);
 
-      // Update all files with new encrypted keys and receiver
-      for (const update of fileUpdates) {
+        // Update file with receiver info and receiver's encrypted key
         const { error: updateError } = await supabase
           .from("encrypted_files")
           .update({
-            receiver_id: update.receiver_id,
-            encrypted_aes_key: update.encrypted_aes_key,
+            receiver_id: selectedDoctor,
+            receiver_encrypted_aes_key: receiverEncryptedKey,
           })
-          .eq("id", update.id);
+          .eq("id", file.id);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error(`Error updating file ${file.id}:`, updateError);
+          throw updateError;
+        }
       }
 
       // Update folder with receiver information

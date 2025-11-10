@@ -145,6 +145,7 @@ export type Database = {
           id: string
           metadata: Json | null
           owner_id: string
+          receiver_encrypted_aes_key: string | null
           receiver_id: string | null
           updated_at: string
         }
@@ -158,6 +159,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           owner_id: string
+          receiver_encrypted_aes_key?: string | null
           receiver_id?: string | null
           updated_at?: string
         }
@@ -171,6 +173,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           owner_id?: string
+          receiver_encrypted_aes_key?: string | null
           receiver_id?: string | null
           updated_at?: string
         }
@@ -230,6 +233,7 @@ export type Database = {
           id: string
           metadata: Json | null
           owner_id: string
+          receiver_encrypted_aes_key: string | null
           receiver_id: string | null
           updated_at: string
         }
@@ -242,6 +246,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           owner_id: string
+          receiver_encrypted_aes_key?: string | null
           receiver_id?: string | null
           updated_at?: string
         }
@@ -254,6 +259,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           owner_id?: string
+          receiver_encrypted_aes_key?: string | null
           receiver_id?: string | null
           updated_at?: string
         }

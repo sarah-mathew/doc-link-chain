@@ -32,6 +32,7 @@ interface EncryptedFile {
   file_hash: string;
   encrypted_path: string;
   encrypted_aes_key: string;
+  receiver_encrypted_aes_key: string | null;
   metadata: any;
   created_at: string;
 }
@@ -124,8 +125,9 @@ const SharedFoldersGallery = ({ profileId }: SharedFoldersGalleryProps) => {
 
       const encryptedContent = await fileData.text();
 
-      // Decrypt AES key with receiver's RSA private key
-      const aesKey = decryptKeyWithRSA(file.encrypted_aes_key, profile.private_key_pem);
+      // Decrypt AES key with receiver's RSA private key (use receiver_encrypted_aes_key for shared files)
+      const encryptedKey = file.receiver_encrypted_aes_key || file.encrypted_aes_key;
+      const aesKey = decryptKeyWithRSA(encryptedKey, profile.private_key_pem);
       
       if (!aesKey) {
         toast.error("Failed to decrypt encryption key");
@@ -204,8 +206,9 @@ const SharedFoldersGallery = ({ profileId }: SharedFoldersGalleryProps) => {
 
           const encryptedContent = await fileData.text();
 
-          // Decrypt AES key with receiver's RSA private key
-          const aesKey = decryptKeyWithRSA(file.encrypted_aes_key, profile.private_key_pem);
+          // Decrypt AES key with receiver's RSA private key (use receiver_encrypted_aes_key for shared files)
+          const encryptedKey = file.receiver_encrypted_aes_key || file.encrypted_aes_key;
+          const aesKey = decryptKeyWithRSA(encryptedKey, profile.private_key_pem);
           
           if (!aesKey) {
             console.error(`Failed to decrypt key for ${file.file_name}`);

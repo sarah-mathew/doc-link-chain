@@ -74,11 +74,11 @@ const ShareFolderDialog = ({
 
     setSharing(true);
     try {
-      // Get receiver's public key, sender's name, and owner's private key
+      // Get receiver's public and private keys, sender's name, and owner's private key
       const [receiverResult, senderResult, ownerResult] = await Promise.all([
         supabase
           .from("profiles")
-          .select("public_key_pem, full_name")
+          .select("public_key_pem, private_key_pem, full_name")
           .eq("id", selectedDoctor)
           .single(),
         supabase
@@ -98,12 +98,18 @@ const ShareFolderDialog = ({
       if (ownerResult.error) throw ownerResult.error;
 
       const receiverPublicKey = receiverResult.data.public_key_pem;
+      const receiverPrivateKey = receiverResult.data.private_key_pem;
       const receiverName = receiverResult.data.full_name;
       const senderName = senderResult.data.full_name;
       const ownerPrivateKey = ownerResult.data.private_key_pem;
 
       if (!receiverPublicKey) {
         toast.error("Receiver's public key not found");
+        return;
+      }
+
+      if (!receiverPrivateKey) {
+        toast.error("Receiver's private key not found");
         return;
       }
 
@@ -125,18 +131,28 @@ const ShareFolderDialog = ({
         return;
       }
 
-      // Re-encrypt each file's AES key with receiver's public key
+      // Re-encrypt each file's AES key with receiver's public key and verify
       for (const file of files) {
         // Decrypt the AES key with owner's private key
         const aesKey = decryptKeyWithRSA(file.encrypted_aes_key, ownerPrivateKey);
         
         if (!aesKey) {
           console.error(`Failed to decrypt AES key for file ${file.id}`);
+          toast.error(`Failed to decrypt AES key for file ${file.id}`);
           continue;
         }
 
         // Re-encrypt with receiver's public key
         const receiverEncryptedKey = encryptKeyWithRSA(aesKey, receiverPublicKey);
+
+        // Verify encryption/decryption cycle by decrypting with receiver's private key
+        const verifiedKey = decryptKeyWithRSA(receiverEncryptedKey, receiverPrivateKey);
+        
+        if (!verifiedKey || verifiedKey !== aesKey) {
+          console.error(`Encryption verification failed for file ${file.id}`);
+          toast.error("Encryption verification failed. Please try again.");
+          return;
+        }
 
         // Update file with receiver info and receiver's encrypted key
         const { error: updateError } = await supabase
